@@ -1,0 +1,427 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include "station.h"
+#include "utils.h"
+#include "file.h"
+#include <time.h>
+
+//Pointeur Global
+station *head = NULL;
+station *queue = NULL;
+
+
+//Fonction pr Creer une station:
+station *CreerStation(char id[], char nom[], char quartier[], int voyageurs){
+  station *nv = (station *)malloc(sizeof(station));
+
+  nv->voyageurs = voyageurs;
+  strcpy(nv->id, id);
+  strcpy(nv->nom, nom);
+  strcpy(nv->quartier, quartier);
+
+  nv->next = NULL;
+  nv->prev = NULL;
+
+  return nv;
+}
+
+
+//Fct Insertion au debut de la liste
+void InsertionDebut(char id[], char nom[], char quartier[], int voyageurs){
+  station *nv = CreerStation(id, nom, quartier, voyageurs);
+
+  if(head == NULL){head = queue = nv;
+                   printf("\n--STATION AJOUTEE AU DEBUT AVEC SUCCES!--\n");  //lsite vide
+                   return;}
+
+    nv->next = head;   //Cas general
+    head->prev = nv;
+    head = nv;
+  printf("\n--STATION AJOUTEE AU DEBUT AVEC SUCCES!--\n");
+
+  char log[200];
+  sprintf(log,"INSERT - Station %s added",id);
+  LogAction(log);
+}
+
+
+//Fct Insertion a la fin de la liste
+void InsertionFin(char id[], char nom[], char quartier[], int voyageurs){
+  station *nv = CreerStation(id, nom, quartier, voyageurs);
+
+  if(queue == NULL){queue = head = nv;
+                    printf("\n--STATION AJOUTEE A LA FIN AVEC SUCCES!--\n"); //Liste vide
+                    return;}
+
+    nv->prev = queue;   //Cas general
+    queue->next = nv;
+    queue = nv;
+  printf("\n--STATION AJOUTEE A LA FIN AVEC SUCCES!--\n");
+
+  char log[200];
+  sprintf(log,"INSERT - Station %s added",id);
+  LogAction(log);
+}
+
+
+//Fct Recherche Par Id:
+station *RechercheId(char IdRecherche[]){
+  station *temp = head;
+
+  char log[200];
+  sprintf(log,"SEARCH - Station searched: %s",IdRecherche);
+  LogAction(log);
+
+  while(temp != NULL){
+    if(strcmp(temp->id, IdRecherche) == 0) return temp;
+    temp = temp->next;
+  }
+ printf("\n--Station Non trouvee--\n");
+ return NULL;
+
+}
+
+//Fct Insertion apres Id:
+void InsertionApresId(char id[], char nom[], char quartier[], int voyageurs, char IdRecherche[]){
+  station *tempCh = RechercheId(IdRecherche);
+  if(tempCh == NULL) return; //Si Id non trouvee
+
+  station *nv = CreerStation(id, nom, quartier, voyageurs);
+
+  nv->next = tempCh->next;
+  nv->prev = tempCh;
+  if(tempCh->next == NULL){ //if inserted aftr last elmnt.
+    queue = nv;
+  }else{
+        tempCh->next->prev = nv;
+         }
+
+  tempCh->next = nv;
+
+  printf("\n--STATION AJOUTEE APRES / Id : %s / AVEC SUCCES!--\n",IdRecherche);
+
+  char log[200];
+  sprintf(log,"INSERT - Station %s added",id);
+  LogAction(log);
+
+}
+
+//Fct sup 1er
+void SupprimerHead(){
+    station *temp = head;
+ if(head == NULL){ printf("\n--LISTE EST DEJA VIDE !--\n"); return;}  //liste vide
+ if(head == queue){ head = queue = NULL;
+                    free(temp);
+                    printf("\n--ELEMENT SUPPRIME, LA LISTE EST VIDE !--\n");
+                    return;} //une seul el
+
+  head = head->next;
+  head->prev = NULL;
+
+  char log[200];
+  sprintf(log,"DELETE - Station deleted successfully (%s)",temp->id);
+  LogAction(log);
+
+  free(temp);
+  printf("\n--1er ELEMENT SUPPRIME AVEC SUCCES!--\n");
+}
+
+//Fct Sup dernier
+void SupprimerQueue(){
+    station *temp = queue;
+ if(queue == NULL){ printf("\n--LISTE EST DEJA VIDE !--\n"); return;}  //liste vide
+
+ if(queue == head){ head = queue = NULL;
+                    free(temp);
+                    printf("\n--STATION SUPPRIME, LA LISTE EST VIDE !--\n");
+                    return;} //une seul el
+
+  queue = queue->prev;
+  queue->next = NULL;
+
+   char log[200];
+  sprintf(log,"DELETE - Station deleted successfully (%s)",temp->id);
+  LogAction(log);
+
+  free(temp);
+  printf("\n--DERNIER ELEMENT SUPPRIME AVEC SUCCES!--\n");
+}
+
+//Fct sup ID:
+void SupprimerId(char IdRecherche[]){
+ station *tempCh = RechercheId(IdRecherche);
+ if(tempCh == NULL) return;
+ if(tempCh == head){SupprimerHead(); return;}
+ if(tempCh == queue){SupprimerQueue(); return;}
+
+ tempCh->prev->next = tempCh->next;
+ tempCh->next->prev = tempCh->prev;
+ free(tempCh);
+
+  char log[200];
+  sprintf(log,"DELETE - Station deleted successfully (%s)",IdRecherche);
+  LogAction(log);
+
+}
+
+void AffichageDebut(){
+  station *temp = head;
+
+
+if(temp != NULL){
+    printf("\n\n");
+    printf("=========================================\n");
+    printf("           LISTE DES STATIONS            \n");
+    printf("=========================================\n");
+       while(temp != NULL){
+         printf("\n+---------------------------------------+\n");
+         printf("| ID        : %-28s|\n", temp->id);
+         printf("| Nom       : %-28s|\n", temp->nom);
+         printf("| Quartier  : %-28s|\n", temp->quartier);
+         printf("| Voyageurs : %-28d|\n", temp->voyageurs);
+         printf("+---------------------------------------+\n");
+
+         temp = temp->next;
+  }printf("\n=========================================\n");
+
+ }else{printf("\n--LISTE EST VIDE---\n");}
+}
+
+//Affichage Fin vers Debut
+void AffichageFin(){
+  station *temp = queue;
+
+
+ if(temp != NULL){
+    printf("\n\n");
+    printf("=========================================\n");
+    printf("           LISTE DES STATIONS          \n");
+    printf("=========================================\n");
+       while(temp != NULL){
+         printf("\n+---------------------------------------+\n");
+         printf("| ID        : %-28s|\n", temp->id);
+         printf("| Nom       : %-28s|\n", temp->nom);
+         printf("| Quartier  : %-28s|\n", temp->quartier);
+         printf("| Voyageurs : %-28d|\n", temp->voyageurs);
+         printf("+---------------------------------------+\n");
+
+         temp = temp->prev;
+  }printf("\n=========================================\n");
+
+ }else{printf("\n--LISTE EST VIDE---\n");}
+}
+
+//Affichage D'une seul station
+void AffichageSeul(station *temp){
+    if(temp!=NULL){
+         printf("\n+---------------------------------------+\n");
+         printf("| ID        : %-28s|\n", temp->id);
+         printf("| Nom       : %-28s|\n", temp->nom);
+         printf("| Quartier  : %-28s|\n", temp->quartier);
+         printf("| Voyageurs : %-28d|\n", temp->voyageurs);
+         printf("+---------------------------------------+\n");
+  }else{printf("\n---STATION NON EXISTANT---\n");}
+}
+
+//Fct affichage quartier
+void AfficherQuartier(){
+  station *temp = head;
+  if(temp == NULL) {printf("\n--LISTE VIDE--\n");  return;}
+
+  char quartier[50];
+  printf("\n---- NOM DU QUARTIER :");
+  LireChaine(quartier, 50);
+
+   while(temp != NULL){
+    if(strcmp(temp->quartier, quartier) == 0) AffichageSeul(temp);
+    temp = temp->next;
+   }
+
+}
+
+void Statistique(){
+ int NbrVoyageurs = 0;
+ int NbrStation = 0;
+ station *temp = head;
+ station *maxVoyageur = head;
+ station *minVoyageur = head;
+
+ if(temp == NULL) return;
+
+   while(temp != NULL){
+     NbrVoyageurs += temp->voyageurs;
+     NbrStation++;
+
+      if(temp->voyageurs > maxVoyageur->voyageurs) maxVoyageur = temp;
+      if(temp->voyageurs < minVoyageur->voyageurs) minVoyageur = temp;
+
+     temp = temp->next;
+   }
+   float Moy = NbrVoyageurs/NbrStation;
+   printf("\n+========STATISTIQUE================================+\n");
+   printf("| Nombre de station                : %-14d |\n",NbrStation);
+   printf("| Total de Voyageurs               : %-14d |\n",NbrVoyageurs);
+   printf("| Moyenne de voyageurs par station : %-14.2f |\n",Moy);
+   printf("| Station la plus active           : %-14s |\n",maxVoyageur->id);
+   printf("| Station la moins active          : %-14s |",minVoyageur->id);
+   printf("\n+===================================================+\n");
+
+
+  LogAction("STATS - System analysis completed");
+}
+
+void AutoGenerateLOL(int n){
+char *quartiers[] = {
+        "Tanger", "BniMakada", "Iberia", "Boulevard", "Sahat Madina", "Sahat Omam", "Dradeb"
+    };
+
+    char *noms[] = {
+        "Station A1", "Station B1", "Station C1",
+        "Station D1", "Station E1"
+    };
+
+    int qSize = 7;
+    int nSize = 5;
+
+    for(int i = 1; i <= n; i++){
+
+        char id[20];
+        sprintf(id, "ST%03d", i);
+
+        char nom[50];
+        strcpy(nom, noms[rand() % nSize]);
+
+        char quartier[50];
+        strcpy(quartier, quartiers[rand() % qSize]);
+
+        int voyageurs = (rand() % 491) + 10;
+
+        InsertionFin(id, nom, quartier, voyageurs);
+    }
+
+    printf("\n-- %d STATIONS GENEREES AVEC SUCCES --\n", n);
+
+    LogAction("LOAD - Database imported successfully");
+}
+
+
+void UpdateStation(){
+   int  choix;
+   char IdRecherche[20];
+   printf("\n===== MODIFICATION D'UNE STATION =====\n");
+   printf("--Recherche Id:");
+   LireChaine(IdRecherche , 50);
+
+   station *temp = RechercheId(IdRecherche);
+   if(temp == NULL) return; //non trouvable
+
+   char nv[50];
+   int NvInt;
+   do{
+      AffichageSeul(temp);
+      printf("\nQue voulez-vous modifier s?\n");
+      printf("[1] ID\n");
+      printf("[2] Nom\n");
+      printf("[3] Quartier\n");
+      printf("[4] Voyageurs\n");
+      printf("[0] Quitter vers menu\n");
+    printf("Choix: ");
+    choix = LireInt();
+
+      switch(choix){
+         case 1 : printf("Nouveau ID: ");
+                  LireChaine(nv, 20);
+
+                  if(RechercheId(nv) != NULL){  //double !!
+                                             printf("-- ID DEJA EXISTANT --\n");
+                                             return;}
+                   strcpy(temp->id, nv);
+                   printf("-- ID MODIFIE AVEC SUCCES --\n");
+
+                   char log1[100];
+                   sprintf(log1,"UPDATE - Station modified (%s)",IdRecherche);
+                   LogAction(log1);
+
+                   break;
+
+       case 2 :    printf("Nouveau Nom: ");
+                   LireChaine(nv, 20);
+                   strcpy(temp->nom, nv);
+                   printf("-- Nom MODIFIE AVEC SUCCES --\n");
+
+                   char log2[100];
+                   sprintf(log2,"UPDATE - Station modified (%s)",IdRecherche);
+                   LogAction(log2);
+
+                   break;
+
+       case 3 :    printf("Nouveau Quartier: ");
+                   LireChaine(nv, 20);
+                   strcpy(temp->quartier, nv);
+                   printf("-- Quartier MODIFIE AVEC SUCCES --\n");
+
+                   char log3[100];
+                   sprintf(log3,"UPDATE - Station modified (%s)",IdRecherche);
+                   LogAction(log3);
+
+                   break;
+
+       case 4 :    printf("Nouveau Nbr Voyageur: ");
+                   NvInt = LireInt();
+                   temp->voyageurs = NvInt;
+                   printf("-- Nombre de voy MODIFIE AVEC SUCCES --\n");
+
+                   char log4[100];
+                   sprintf(log4,"UPDATE - Station modified (%s)",IdRecherche);
+                   LogAction(log4);
+
+                   break;
+       case 0 : break;
+
+       default : printf("--CHOIX INVALIDE !!--\n");
+      }
+   }while(choix != 0);
+}
+
+
+void TrierCroissant(){
+  if(head == NULL || head->next == NULL){
+        printf("\n-- RIEN A TRIER --\n");
+        return;
+    }
+
+    station *i, *j;
+
+    for(i = head; i != NULL; i = i->next){
+        for(j = i->next; j != NULL; j = j->next){
+
+            if(i->voyageurs > j->voyageurs){
+
+                //data swap hhh
+                char id[20], nom[50], quartier[50];
+                int voy;
+
+                // save
+                strcpy(id, i->id);
+                strcpy(nom, i->nom);
+                strcpy(quartier, i->quartier);
+                voy = i->voyageurs;
+
+                //change
+                strcpy(i->id, j->id);
+                strcpy(i->nom, j->nom);
+                strcpy(i->quartier, j->quartier);
+                i->voyageurs = j->voyageurs;
+
+
+                strcpy(j->id, id);
+                strcpy(j->nom, nom);
+                strcpy(j->quartier, quartier);
+                j->voyageurs = voy;
+            }
+        }
+    }
+
+    printf("\n-- TRI PAR VOYAGEURS CROISSANT EFFECTUE --\n");
+}

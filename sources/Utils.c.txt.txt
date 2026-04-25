@@ -1,0 +1,26 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include "utils.h"
+
+char logBuffer[200];
+
+void pause(){
+    printf("\nAppuyez sur ENTER pour continuer...");
+    getchar();
+}
+
+/*Adding fucntions that can read ints w Chaine de carac.
+    since we want to store full names and scanf leaves \n*/
+
+int LireInt(){
+  char chaine[50];
+  fgets(chaine, sizeof(chaine), stdin);
+  return(atoi(chaine));
+}
+
+
+void LireChaine(char *chaine, int taille){
+ fgets(chaine, taille, stdin);
+ chaine[strcspn(chaine, "\n")] = '\0'; //removes \n just incase
+}

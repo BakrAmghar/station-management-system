@@ -1,0 +1,148 @@
+#include <stdio.h>
+#include <string.h>
+#include "file.h"
+#include "station.h"
+#include <direct.h>
+#include <time.h>
+
+//FCT BONUS (SAUVEGARDER & LIRE)
+void Sauvegarder(){
+    FILE *fp = fopen("data/station.bin", "wb");
+    if(fp == NULL){
+        printf("Erreur fichier\n");
+        return;
+    }
+
+    station *temp = head;
+
+    while(temp != NULL){
+        StationFile s;
+
+        strcpy(s.id, temp->id);
+        strcpy(s.nom, temp->nom);
+        strcpy(s.quartier, temp->quartier);
+        s.voyageurs = temp->voyageurs;
+
+        fwrite(&s, sizeof(StationFile), 1, fp);
+
+        temp = temp->next;
+    }
+
+    fclose(fp);
+    printf("----Sauvegarde OK !----\n");
+    LogAction("SAVE - System state stored");
+}
+
+void LireFichier(){
+    FILE *fp = fopen("data/station.bin", "rb");
+    if(fp == NULL){
+        printf("Erreur fichier\n");
+        return;
+    }
+
+    head = queue = NULL;
+
+    StationFile s;
+
+    while(fread(&s, sizeof(StationFile), 1, fp)){
+        InsertionFin(
+            s.id,
+            s.nom,
+            s.quartier,
+            s.voyageurs
+        );
+    }
+
+    fclose(fp);
+    printf("-----Chargement OK!!-----\n");
+
+    LogAction("LOAD - System restored from file");
+}
+
+
+void ExportRapport(){
+    FILE *fp = fopen("data/rapport.txt", "w");
+    if(fp == NULL){
+        printf("Erreur fichier\n");
+        return;
+    }
+
+    fprintf(fp, "============================================================\n");
+    fprintf(fp, "               RAPPORT DE GESTION DES STATIONS\n");
+    fprintf(fp, "============================================================\n");
+    fprintf(fp, "\n");
+
+    fprintf(fp, "+-------------------------------------------------------------+\n");
+    fprintf(fp, "| ID       | NOM                | QUARTIER      | VOYAGEURS       |\n");
+    fprintf(fp, "+-------------------------------------------------------------+\n");
+
+    station *temp = head;
+
+    int total = 0;
+    int count = 0;
+    station *max = head;
+    station *min = head;
+
+    if(head == NULL){
+    fprintf(fp, "Aucune station disponible.\n");
+    fclose(fp);
+    return;
+}
+
+
+    while(temp != NULL){
+
+        fprintf(fp, "| %-8s | %-18s | %-18s | %-6d |\n",
+                temp->id,
+                temp->nom,
+                temp->quartier,
+                temp->voyageurs);
+
+        total += temp->voyageurs;
+        count++;
+        if(max->voyageurs < temp->voyageurs) max = temp;
+        if(min->voyageurs > temp->voyageurs) min = temp;
+
+        temp = temp->next;
+    }
+
+    fprintf(fp, "+------------------------------------------------------------+\n");
+    fprintf(fp, "\n");
+
+    fprintf(fp, "===================== STATISTIQUES =========================\n");
+    fprintf(fp, "Nombre total de stations   : %d\n", count);
+    fprintf(fp, "Total voyageurs            : %d\n", total);
+    fprintf(fp, "Moyenne voyageurs          : %.2f\n",(float)total/count);
+    fprintf(fp, "Station max voyageurs  : %s (%d)\n", max->id, max->voyageurs);
+    fprintf(fp, "Station min voyageurs  : %s (%d)\n", min->id, min->voyageurs);
+    fprintf(fp, "============================================================\n");
+
+    fclose(fp);
+
+    printf("\n---- RAPPORT GENERE (format propre) : data/rapport.txt ----\n");
+
+     LogAction("SAVE - Database exported successfully");
+}
+
+
+void LogAction(const char *action){
+    FILE *fp = fopen("logs.txt", "a");
+    if(fp == NULL){
+        printf("Erreur ouverture logs\n");
+        return;
+    }
+
+    time_t now = time(NULL);
+    struct tm *t = localtime(&now);
+
+    fprintf(fp, "[%04d-%02d-%02d %02d:%02d:%02d] %s\n",
+            t->tm_year + 1900,
+            t->tm_mon + 1,
+            t->tm_mday,
+            t->tm_hour,
+            t->tm_min,
+            t->tm_sec,
+            action);
+
+    fclose(fp);
+}

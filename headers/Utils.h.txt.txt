@@ -1,0 +1,10 @@
+#ifndef UTILS_H
+#define UTILS_H
+
+extern char logBuffer[200];
+
+void pause();
+int LireInt();
+void LireChaine();
+
+#endif // UTILS_H

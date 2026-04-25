@@ -1,0 +1,41 @@
+#include <stdio.h>
+#include "file.h"
+#include "menu.h"
+#include "station.h"
+#include "utils.h"
+/*
+===========================================================
+    Projet : Gestion des Stations (Liste Doublement Chainee)
+
+    Auteur : Bakr AMGHAR
+    Etablissement : EMSI, TANGER.
+
+    Description :
+    Application en C permettant la gestion dynamique de stations :
+    - Ajout / Suppression / Modification
+    - Recherche et tri
+    - Statistiques
+    - Sauvegarde / Chargement (binaire)
+    - Generation automatique de donnees
+
+    Contact :
+    LinkedIn / GitHub : @BakrAmghar
+
+===========================================================
+*/
+
+int main() {
+    int choix;
+
+    LogAction("SYSTEM STARTED");
+
+    do {
+        AfficherBanner();
+        AfficherMenu();
+        choix = LireInt();
+        TraiterChoix(choix);
+    } while(choix != 0);
+
+    LogAction("SYSTEM CLOSED");
+    return 0;
+}

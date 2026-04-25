@@ -1,0 +1,171 @@
+#include <stdio.h>
+#include <string.h>
+#include "station.h"
+#include "utils.h"
+#include "menu.h"
+#include "file.h"
+
+//ASCIIART.EU HELPED CREATE THE FOLLOWING ART  !!!!!!!!!!!!!!!!!!!!!!!
+void AfficherMenu(){
+        printf("\n");
+printf("+==========================================================+\n");
+printf("|              MENU GESTION DES STATIONS                  |\n");
+printf("+==========================================================+\n\n");
+
+printf("|----------------------[AJOUTER]--------------------------|\n");
+printf("| [1] Ajouter station au debut                            |\n");
+printf("| [2] Ajouter station a la fin                            |\n");
+printf("| [3] Ajouter station apres un ID                         |\n");
+printf("|---------------------------------------------------------|\n");
+printf("|                                                         |\n");
+printf("|---------------------[SUPPRIMER]-------------------------|\n");
+printf("| [4] Supprimer premiere station                          |\n");
+printf("| [5] Supprimer derniere station                          |\n");
+printf("| [6] Supprimer station par ID                            |\n");
+printf("|---------------------------------------------------------|\n");
+printf("|                                                         |\n");
+printf("|---------------------[RECHERCHE]-------------------------|\n");
+printf("| [7] Rechercher station par ID                           |\n");
+printf("| [8] Afficher stations d un quartier                     |\n");
+printf("|---------------------------------------------------------|\n");
+printf("|                                                         |\n");
+printf("|---------------------[AFFICHAGE]-------------------------|\n");
+printf("| [9]  debut -> fin                                       |\n");
+printf("| [10] fin -> debut                                       |\n");
+printf("|---------------------------------------------------------|\n");
+printf("|                                                         |\n");
+printf("|--------------------[STATISTIQUE]------------------------|\n");
+printf("| [11] Statistiques                                       |\n");
+printf("|---------------------------------------------------------|\n");
+printf("|                                                         |\n");
+printf("|--------------------[LOAD / SAVE]------------------------|\n");
+printf("| [12] Enregistrer les donnees                            |\n");
+printf("| [13] Charger les donnees                                |\n");
+printf("| [14] Auto Generate/SIMULATE                             |\n");
+printf("| [15] Export Rapport text                                |\n");
+printf("|---------------------------------------------------------|\n");
+printf("|                                                         |\n");
+printf("|--------------------[Modification]-----------------------|\n");
+printf("| [16] Update                                             |\n");
+printf("| [17] Trier par nbr Voyageur en ordre Croissant          |\n");
+printf("|---------------------------------------------------------|\n");
+
+printf("| [0] Quitter                                             |\n");
+printf("+=========================================================+\n");
+
+printf("Votre choix : ");
+
+}
+
+void TraiterChoix(int choix){
+    int voyageurs, n;
+    char nom[50], quartier[50], IdRecherche[20], id[20];
+    station *temp;
+  switch(choix) {
+            //Section Ajout
+            case 1:
+                printf("ID: "); LireChaine(id, 20);
+                printf("Nom: "); LireChaine(nom, 50);
+                printf("Quartier: "); LireChaine(quartier, 50);
+                printf("Voyageurs: "); voyageurs = LireInt();
+                InsertionDebut(id, nom, quartier, voyageurs);
+                pause();
+                break;
+
+            case 2:
+                printf("ID: "); LireChaine(id, 20);
+                printf("Nom: "); LireChaine(nom, 50);
+                printf("Quartier: "); LireChaine(quartier, 50);
+                printf("Voyageur: "); voyageurs = LireInt();
+                InsertionFin(id, nom, quartier, voyageurs);
+                pause();
+                break;
+
+            case 3:
+                printf("Inserer apres ID: "); LireChaine(IdRecherche, 20);
+                temp = RechercheId(IdRecherche);
+                if(temp != NULL){
+                printf("ID: "); LireChaine(id, 20);
+                printf("Nom: "); LireChaine(nom, 50);
+                printf("Quartier: "); LireChaine(quartier, 50);
+                printf("Voyageurs: "); voyageurs = LireInt();
+                InsertionApresId(id, nom, quartier, voyageurs, IdRecherche);
+
+                }else{
+                  printf("\n---ERREUR!--\n");
+                 }
+                pause();
+                break;
+
+            //Section Supprimer
+            case 4: SupprimerHead(); pause(); break;
+            case 5: SupprimerQueue(); pause(); break;
+            case 6:
+                printf("ID a supprimer: "); LireChaine(IdRecherche, 20);
+                SupprimerId(IdRecherche);
+                pause();
+                break;
+
+            //Section Recherche
+            case 7:
+                printf("ID a rechercher: "); LireChaine(IdRecherche, 20);
+                temp = RechercheId(IdRecherche);
+                AffichageSeul(temp);
+                pause();
+                break;
+
+            case 8: AfficherQuartier(); pause(); break;
+
+            //Section Affichage
+            case 9: AffichageDebut(); pause(); break;
+            case 10: AffichageFin(); pause(); break;
+
+            //Section Statistique
+            case 11: Statistique(); pause(); break;
+
+            //Section save/load
+            case 12: Sauvegarder(); pause(); break;
+            case 13: LireFichier(); pause(); break;
+
+            //Simulation
+            case 14: printf("--Combien de station : "); n = LireInt();
+                     AutoGenerateLOL(n); pause(); break;
+             //Export
+            case 15 : ExportRapport(); pause(); break;
+
+            //Modification
+            case 16: UpdateStation(); pause(); break;
+            case 17: TrierCroissant(); pause(); break;
+
+
+            case 0:
+                printf("\n--AU REVOIR!--\n");
+                break;
+
+            default:
+                printf("\n--CHOIX INVALIDE!--\n");
+                pause();
+        }
+
+}
+
+void AfficherBanner(){
+
+printf(
+" ______       _            ___                   _                  _____ _         _   _              ___   ___                                  \n"
+"| ___ \\     | |          / _ \\                | |                /  ___| |       | | (_)             |  \\/  |                                  \n"
+"| |_/ / __ _| | ___ __  / /_\\ \\_ __ ___   __ _| |__   __ _ _ __  \\ `--.| |_ __ _| |_ _  ___  _ __   | .  . | __ _ _ __   __ _  __ _  ___ _ __ \n"
+"| ___ \\/ _` | |/ / '__| |  _  | '_ ` _ \\ / _` | '_ \\ / _` | '__|  `--. \\ __/ _` | __| |/ _ \\| '_ \\  | |\\/| |/ _` | '_ \\ / _` |/ _` |/ _ \\ '__|\n"
+"| |_/ / (_| |   <| |    | | | | | | | | | (_| | | | | (_| | |    /\\__/ / || (_| | |_| | (_) | | | | | |  | | (_| | | | | (_| | (_| |  __/ |   \n"
+"\\____/ \\__,_|_|\\_\\_|    \\_| |_/_| |_| |_|\\__, |_| |_|\\__,_|_|    \\____/ \\__\\__,_|\\__|_|\\___/|_| |_| \\_|  |_/\\__,_|_| |_|\\__,_|\\__, |\\___|_|   \n"
+"                                          __/ |                                                                                __/ |          \n"
+"                                         |___/                                                                                |___/           \n"
+" _____   ___  ______   _____  __                                                                                              \n"
+"/ __  \\ / _ \\ | ___ \\ |  __ \\/  |                                                                                             \n"
+"`' / /'/ /_\\ \\| |_/ / | |  \\/`| |                                                                                             \n"
+"  / /  |  _  ||  __/  | | __  | |                                                                                             \n"
+"./ /___| | | || |     | |_\\ \\_| |_                                                                                            \n"
+"\\____/\\_| |_/\\_|      \\____/\\___/                                                                                             \n"
+    );
+
+}

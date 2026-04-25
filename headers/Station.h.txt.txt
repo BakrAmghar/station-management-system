@@ -1,0 +1,51 @@
+#ifndef STATION_H
+#define STATION_H
+
+typedef struct station{
+  char id[20]; //TFEKAAAR CHANGE !! INT ---> CHAR !!
+  char nom[50];
+  char quartier[50];
+  int voyageurs;
+
+  struct station *next;
+  struct station *prev;
+}station;
+
+typedef struct {  //tfekar hh :ADDED FOR STORING IN FILE (NEXT/PREV NOT NEEDED TO BE STORED !!)
+    char id[20];
+    char nom[50];
+    char quartier[50];
+    int voyageurs;
+} StationFile;
+
+
+extern station *head;
+extern station *queue;
+
+station *CreerStation(char id[], char nom[], char quartier[], int voyageurs);
+
+void InsertionDebut(char id[], char nom[], char quartier[], int voyageurs);
+void InsertionFin(char id[], char nom[], char quartier[], int voyageurs);
+void InsertionApresId(char id[], char nom[], char quartier[], int voyageurs, char IdRecherche[]);
+
+void SupprimerHead();
+void SupprimerQueue();
+void SupprimerId(char IdRecherche[]);
+
+station *RechercheId(char IdRecherche[]);
+
+void AffichageDebut();
+void AffichageFin();
+void AffichageSeul(station *temp);
+
+void AfficherQuartier();
+void Statistique();
+
+void Sauvegarder();
+void LireFichier();
+
+void AutoGenerateLOL(int n);
+void UpdateStation();
+void TrierCroissant();
+
+#endif // STATION_H
